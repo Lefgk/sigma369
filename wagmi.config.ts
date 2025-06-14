@@ -1,0 +1,40 @@
+// config/wagmi.config.ts
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { defineChain } from "viem";
+
+// PulseChain Mainnet configuration
+export const pulseChain = defineChain({
+  id: 369,
+  name: "PulseChain",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Pulse",
+    symbol: "PLS",
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://rpc.pulsechain.com"],
+    },
+  },
+  blockExplorers: {
+    default: { name: "PulseScan", url: "https://scan.pulsechain.com" },
+  },
+  testnet: false,
+});
+
+// Fallback project ID for development (get your own from https://cloud.walletconnect.com/)
+const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "your-project-id-here";
+
+export const config = getDefaultConfig({
+  appName: "Sigma 369 Club",
+  projectId: projectId,
+  chains: [pulseChain],
+  ssr: true,
+});
+
+// Contract addresses
+export const CONTRACTS = {
+  MEMBER_DROP: "0xdbDa9CAfD6f19cB11E23158686e6Fc146e5E37bE" as const,
+  MEMBER_STAKE: "0xca440387bE079F23EC56B40C075B712aa2BAe69C" as const,
+  SIGMA_TOKEN: "0x4FfF88B8d2cAe7d0e913198DF18B7f6a02850EC5" as const,
+};

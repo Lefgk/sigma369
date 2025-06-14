@@ -1,0 +1,49 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+.next
+# testing
+/coverage
+
+# production
+/build
+/broadcast
+/cache
+
+
+
+/lib
+
+
+# misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+soljson-v0.8.20+commit.a1b79de6.js
+lib/openzeppelin-contracts
+foundry/lib/forge-std
+.gitmodules
+src/pages/yearn.drawio
+/out
+
+lib/openzeppelin-contracts
+
+
+remappings.txt
+/forge-out
+/forge-out
+/forge-out
+/scripts/hh
+
+tt.js
+tt2.js
