@@ -1,12 +1,11 @@
 // components/Layout.tsx
 import { ReactNode } from "react";
-import { Navigation } from "./Navigation";
-
+import Navigation from "./Navigation";
 interface LayoutProps {
   children: ReactNode;
 }
 
-export function Layout({ children }: LayoutProps) {
+export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen bg-black">
       <Navigation />

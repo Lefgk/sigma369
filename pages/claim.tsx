@@ -1,7 +1,7 @@
 // pages/claim.tsx
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { ClaimPanel } from "./ClaimPanel";
+import ClaimPanel from "./ClaimPanel";
 import Link from "next/link";
 
 export default function ClaimPage() {

@@ -14,7 +14,7 @@ interface ClaimPanelProps {
   nftType?: "MEMBER" | "VIP";
 }
 
-export function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
+export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
   const { address } = useAccount();
   const [error, setError] = useState<string | null>(null);
 

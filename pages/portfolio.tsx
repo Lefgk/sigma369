@@ -1,7 +1,7 @@
 // pages/portfolio.tsx
 import { useAccount } from "wagmi";
-import { OwnedList } from "./OwnedList";
-import { MyNFTs } from "./MyNFTs";
+import OwnedList from "./OwnedList";
+import { MyNFTs } from "../components/MyNFTs";
 import Link from "next/link";
 
 export default function PortfolioPage() {

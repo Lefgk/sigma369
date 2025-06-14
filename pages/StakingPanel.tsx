@@ -10,7 +10,7 @@ import { CONTRACTS, NFT_TYPES } from "../wagmi.config";
 import { memberDropABI, stakingABI } from "../abis";
 import { useState, useEffect } from "react";
 
-export function StakingPanel() {
+export default function StakingPanel() {
   const { address } = useAccount();
   const [selectedNFT, setSelectedNFT] = useState<"MEMBER" | "VIP">("MEMBER");
   const [error, setError] = useState<string | null>(null);

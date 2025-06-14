@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
 
-export function Navigation() {
+export default function Navigation() {
   const router = useRouter();
   const { address } = useAccount();
 

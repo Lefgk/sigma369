@@ -1,6 +1,6 @@
 // pages/stake.tsx
 import { useAccount } from "wagmi";
-import { StakingPanel } from "./StakingPanel";
+import StakingPanel from "./StakingPanel";
 import Link from "next/link";
 
 export default function StakePage() {

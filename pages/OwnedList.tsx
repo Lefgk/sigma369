@@ -27,7 +27,7 @@ function resolveIpfs(uri: string) {
 // Base URI for your token JSONs (0,1,…)
 const TOKEN_BASE = "ipfs://QmaEZDr8LBrFHsE685439FnYcarPQ6yHw3HS7gYH6jXGju/";
 
-export function OwnedList() {
+export default function OwnedList() {
   const { address } = useAccount();
   const [items, setItems] = useState<NFTItem[] | null>(null);
 
@@ -103,7 +103,10 @@ export function OwnedList() {
 
   if (!address) return null;
   if (items === null || isLoading) return <p>Loading your NFTs…</p>;
-  if (items.length === 0) return <p className="text-gray-400">You don't own any Club Member NFTs yet.</p>;
+  if (items.length === 0)
+    return (
+      <p className="text-gray-400">You don't own any Club Member NFTs yet.</p>
+    );
 
   return (
     <div className="w-full max-w-md mx-auto p-4 bg-gray-900 rounded space-y-4">
@@ -118,10 +121,20 @@ export function OwnedList() {
           const isVideo = /\.(mp4|webm|ogg)$/i.test(mediaUrl);
 
           return (
-            <li key={id} className="flex flex-col items-center bg-gray-800 p-4 rounded space-y-2">
+            <li
+              key={id}
+              className="flex flex-col items-center bg-gray-800 p-4 rounded space-y-2"
+            >
               {mediaUrl ? (
                 isVideo ? (
-                  <video src={mediaUrl} autoPlay loop muted playsInline className="w-64 h-64 object-cover rounded" />
+                  <video
+                    src={mediaUrl}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-64 h-64 object-cover rounded"
+                  />
                 ) : (
                   <img
                     src={mediaUrl}
@@ -139,7 +152,9 @@ export function OwnedList() {
               )}
               <p className="font-medium">{name}</p>
               <p className="text-xs text-gray-400">Token ID {id}</p>
-              <p className="text-xs text-gray-400">Balance: {balance.toString()}</p>
+              <p className="text-xs text-gray-400">
+                Balance: {balance.toString()}
+              </p>
             </li>
           );
         })}
