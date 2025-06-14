@@ -1,7 +1,7 @@
 // pages/portfolio.tsx
 import { useAccount } from "wagmi";
 import { OwnedList } from "./OwnedList";
-import { MyNFTs } from "../components/MyNFTs";
+import { MyNFTs } from "./MyNFTs";
 import Link from "next/link";
 
 export default function PortfolioPage() {
@@ -12,15 +12,21 @@ export default function PortfolioPage() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="neon-heading text-4xl md:text-6xl font-extrabold mb-4">YOUR PORTFOLIO</h1>
-          <p className="text-lg text-gray-300 mb-8">View and manage your Sigma 369 Club NFTs</p>
+          <h1 className="neon-heading text-4xl md:text-6xl font-extrabold mb-4">
+            YOUR PORTFOLIO
+          </h1>
+          <p className="text-lg text-gray-300 mb-8">
+            View and manage your Sigma 369 Club NFTs
+          </p>
         </div>
 
         {!isConnected ? (
           <div className="card-neon text-center">
             <div className="text-6xl mb-6">🔌</div>
             <h2 className="text-2xl font-semibold mb-4">Connect Your Wallet</h2>
-            <p className="text-gray-400 mb-6">Connect your wallet to view your NFT portfolio</p>
+            <p className="text-gray-400 mb-6">
+              Connect your wallet to view your NFT portfolio
+            </p>
           </div>
         ) : (
           <div className="space-y-8">
@@ -45,18 +51,28 @@ export default function PortfolioPage() {
 
             {/* NFT Gallery */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Your NFT Collection</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-center">
+                Your NFT Collection
+              </h2>
               <OwnedList />
             </div>
 
             {/* Quick Actions */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Quick Actions</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-center">
+                Quick Actions
+              </h2>
               <div className="grid md:grid-cols-2 gap-4">
-                <Link href="/claim" className="btn neon-purple-outline w-full text-center">
+                <Link
+                  href="/claim"
+                  className="btn neon-purple-outline w-full text-center"
+                >
                   🎁 Claim More NFTs
                 </Link>
-                <Link href="/stake" className="btn neon-purple w-full text-center">
+                <Link
+                  href="/stake"
+                  className="btn neon-purple w-full text-center"
+                >
                   ⚡ Stake for Rewards
                 </Link>
               </div>
@@ -64,7 +80,9 @@ export default function PortfolioPage() {
 
             {/* Portfolio Summary */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">Portfolio Summary</h2>
+              <h2 className="text-2xl font-semibold mb-6 text-center">
+                Portfolio Summary
+              </h2>
               <MyNFTs />
             </div>
           </div>
