@@ -24,13 +24,22 @@ export function Navigation() {
             <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
               <span className="text-white font-bold">Σ</span>
             </div>
-            <span className="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Sigma 369</span>
+            <span className="font-bold text-xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+              Sigma 369
+            </span>
           </Link>
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-4">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className={`nav-link ${router.pathname === item.href ? "active" : ""}`}>
+              <Link
+                key={item.href}
+                href={item.href}
+                style={{ color: "white" }}
+                className={`nav-link ${
+                  router.pathname === item.href ? "active" : ""
+                }`}
+              >
                 <span className="mr-2">{item.icon}</span>
                 {item.label}
               </Link>
@@ -47,7 +56,13 @@ export function Navigation() {
         <div className="md:hidden pb-4">
           <div className="flex justify-around">
             {navItems.map((item) => (
-              <Link key={item.href} href={item.href} className={`nav-link text-sm ${router.pathname === item.href ? "active" : ""}`}>
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`nav-link text-sm ${
+                  router.pathname === item.href ? "active" : ""
+                }`}
+              >
                 <div className="flex flex-col items-center">
                   <span className="text-lg">{item.icon}</span>
                   <span className="text-xs">{item.label}</span>
