@@ -80,9 +80,9 @@ export default function ClaimPage() {
                 aria-label="Select Club Member NFT"
               >
                 <img
-                  src="/images/fallback-member.jpg"
+                  src="/images/clubsigma.png"
                   alt="Club Member NFT background"
-                  className="absolute inset-0 w-full h-full object-cover opacity-20"
+                  className="absolute inset-0 w-full h-full object-cover opacity-10"
                 />
                 <div className="relative z-10 text-center">
                   <div className="text-4xl mb-4">🏅</div>
@@ -124,9 +124,9 @@ export default function ClaimPage() {
                 aria-label="Select Club VIP NFT"
               >
                 <img
-                  src="/images/fallback-vip.jpg"
+                  src="/images/vipsigma.png"
                   alt="Club VIP NFT background"
-                  className="absolute inset-0 w-full h-full object-cover opacity-20"
+                  className="absolute inset-0 w-full h-full object-cover opacity-10"
                 />
                 <div className="relative z-10 text-center">
                   <div className="text-4xl mb-4">👑</div>
