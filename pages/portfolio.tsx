@@ -34,24 +34,24 @@ export default function PortfolioPage() {
             <div className="grid md:grid-cols-3 gap-6">
               <div className="stat-card text-center">
                 <div className="text-3xl mb-2">💼</div>
-                <div className="stat-value">Active</div>
+                <div className="text-white stat-value">Active</div>
                 <p className="text-gray-400 text-sm">Portfolio Status</p>
               </div>
               <div className="stat-card text-center">
                 <div className="text-3xl mb-2">🎯</div>
-                <div className="stat-value">Member</div>
+                <div className="text-white stat-value">Member</div>
                 <p className="text-gray-400 text-sm">Club Status</p>
               </div>
               <div className="stat-card text-center">
                 <div className="text-3xl mb-2">⚡</div>
-                <div className="stat-value">PLS</div>
+                <div className="text-white stat-value">PLS</div>
                 <p className="text-gray-400 text-sm">Network</p>
               </div>
             </div>
 
             {/* NFT Gallery */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="neon-heading text-2xl font-semibold mb-6 text-center">
                 Your NFT Collection
               </h2>
               <OwnedList />
@@ -59,19 +59,19 @@ export default function PortfolioPage() {
 
             {/* Quick Actions */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="neon-heading text-2xl font-semibold mb-6 text-center">
                 Quick Actions
               </h2>
               <div className="grid md:grid-cols-2 gap-4">
                 <Link
                   href="/claim"
-                  className="btn neon-purple-outline w-full text-center"
+                  className="btn-neon inline-block"
                 >
                   🎁 Claim More NFTs
                 </Link>
                 <Link
                   href="/stake"
-                  className="btn neon-purple w-full text-center"
+                  className="btn-neon inline-block"
                 >
                   ⚡ Stake for Rewards
                 </Link>
@@ -80,7 +80,7 @@ export default function PortfolioPage() {
 
             {/* Portfolio Summary */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="neon-heading text-2xl font-semibold mb-6 text-center">
                 Portfolio Summary
               </h2>
               <MyNFTs />

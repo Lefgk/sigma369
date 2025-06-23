@@ -1,4 +1,4 @@
-// components/ClaimPanel.tsx
+import { useEffect, useMemo, useState } from "react";
 import {
   useAccount,
   useWriteContract,
@@ -8,83 +8,81 @@ import {
 import { parseUnits } from "viem";
 import { CONTRACTS, NFT_TYPES } from "../wagmi.config";
 import { memberDropABI, sigmaTokenABI } from "../abis";
-import { useState } from "react";
+import Link from "next/link";
+
+// Video mapping for MEMBER and VIP NFTs
+const NFT_VIDEOS = {
+  MEMBER: "../components/club.mp4",
+  VIP: "../videos/vip.mp4",
+} as const;
 
 interface ClaimPanelProps {
-  nftType?: "MEMBER" | "VIP";
+  nftType: "MEMBER" | "VIP";
 }
 
-export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
+export default function ClaimPanel({ nftType }: ClaimPanelProps) {
   const { address } = useAccount();
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const currentNFT = NFT_TYPES[nftType];
   const price = parseUnits(currentNFT.price, 18);
 
-  // Check allowance
-  const { data: allowance, refetch: refetchAllowance } = useReadContract({
+  // Contract reads
+  const {
+    data: allowance,
+    isLoading: isAllowanceLoading,
+    refetch: refetchAllowance,
+  } = useReadContract({
     address: CONTRACTS.SIGMA_TOKEN,
     abi: sigmaTokenABI,
     functionName: "allowance",
     args: address ? [address, currentNFT.contract] : undefined,
-    query: {
-      enabled: !!address,
-    },
+    query: { enabled: !!address, retry: 3, retryDelay: 1000 },
   });
 
-  // Check user's Sigma token balance
-  const { data: sigmaBalance } = useReadContract({
+  const { data: sigmaBalance, isLoading: isBalanceLoading } = useReadContract({
     address: CONTRACTS.SIGMA_TOKEN,
     abi: sigmaTokenABI,
     functionName: "balanceOf",
     args: address ? [address] : undefined,
-    query: {
-      enabled: !!address,
-    },
+    query: { enabled: !!address, retry: 3, retryDelay: 1000 },
   });
-  if (!address) return;
-  // Check if user already owns the NFT
-  const { data: nftBalance } = useReadContract({
+
+  const { data: nftBalance, isLoading: isNftBalanceLoading } = useReadContract({
     address: currentNFT.contract,
     abi: memberDropABI,
     functionName: "balanceOf",
-    args: [address, BigInt(currentNFT.tokenId)],
-    query: {
-      enabled: !!address,
-    },
+    args: address ? [address, BigInt(currentNFT.tokenId)] : undefined,
+    query: { enabled: !!address, retry: 3, retryDelay: 1000 },
   });
 
-  // Write contract hooks
+  // Transaction hooks
   const { writeContract: writeApprove, data: approveHash } = useWriteContract();
   const { writeContract: writeClaim, data: claimHash } = useWriteContract();
-
-  // Wait for transactions
   const { isLoading: isApproveLoading, isSuccess: isApproveSuccess } =
-    useWaitForTransactionReceipt({
-      hash: approveHash,
-    });
-
+    useWaitForTransactionReceipt({ hash: approveHash });
   const { isLoading: isClaimLoading, isSuccess: isClaimSuccess } =
-    useWaitForTransactionReceipt({
-      hash: claimHash,
-    });
+    useWaitForTransactionReceipt({ hash: claimHash });
+
+  // Refetch allowance after approval
+  useEffect(() => {
+    if (isApproveSuccess) refetchAllowance();
+  }, [isApproveSuccess, refetchAllowance]);
 
   const needsApproval = allowance ? allowance < price : true;
   const hasEnoughTokens = sigmaBalance ? sigmaBalance >= price : false;
   const alreadyOwnsNFT = nftBalance ? nftBalance > 0 : false;
+  const sigmaBalanceFormatted = useMemo(() => {
+    return sigmaBalance ? parseFloat(sigmaBalance.toString()) / 1e18 : 0;
+  }, [sigmaBalance]);
 
   const handleApprove = async () => {
-    if (!address) {
-      setError("🔌 Connect your wallet first");
-      return;
-    }
-
-    if (!hasEnoughTokens) {
-      setError(
+    if (!address) return setError("🔌 Connect your wallet first");
+    if (!hasEnoughTokens)
+      return setError(
         `❌ Insufficient Sigma 369 tokens. Need ${currentNFT.price.toLocaleString()}`
       );
-      return;
-    }
 
     try {
       setError(null);
@@ -95,28 +93,18 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
         args: [currentNFT.contract, price],
       });
     } catch (e: any) {
-      console.error(e);
       setError(`❌ ${e.message || "Approval failed"}`);
     }
   };
 
   const handleClaim = async () => {
-    if (!address) {
-      setError("🔌 Connect your wallet first");
-      return;
-    }
-
-    if (!hasEnoughTokens) {
-      setError(
+    if (!address) return setError("🔌 Connect your wallet first");
+    if (!hasEnoughTokens)
+      return setError(
         `❌ Insufficient Sigma 369 tokens. Need ${currentNFT.price.toLocaleString()}`
       );
-      return;
-    }
-
-    if (alreadyOwnsNFT) {
-      setError(`❌ You already own a ${currentNFT.name}`);
-      return;
-    }
+    if (alreadyOwnsNFT)
+      return setError(`❌ You already own a ${currentNFT.name}`);
 
     try {
       setError(null);
@@ -124,12 +112,10 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
         address: currentNFT.contract,
         abi: memberDropABI,
         functionName: "claim",
-        args: [BigInt(currentNFT.tokenId), BigInt(1)], // tokenId, quantity: 1
+        args: [BigInt(currentNFT.tokenId), BigInt(1)],
       });
     } catch (e: any) {
-      console.error(e);
       const message = e.message || e.reason || "Unknown error";
-
       if (
         message.toLowerCase().includes("already claimed") ||
         message.toLowerCase().includes("exceed limit")
@@ -141,14 +127,29 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
     }
   };
 
-  // Refetch allowance after successful approval
-  if (isApproveSuccess) {
-    refetchAllowance();
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  if (!address) {
+    return (
+      <div className="w-full max-w-md mx-auto text-center">
+        <div className="card-neon">
+          <div className="text-6xl mb-4">🔌</div>
+          <h3 className="text-xl font-semibold mb-2">Wallet Not Connected</h3>
+          <p className="text-gray-400">Please connect your wallet to claim.</p>
+        </div>
+      </div>
+    );
   }
 
-  if (!address) return null;
+  if (isAllowanceLoading || isBalanceLoading || isNftBalanceLoading) {
+    return (
+      <div className="w-full max-w-md mx-auto text-center">
+        <div className="card-neon">Loading...</div>
+      </div>
+    );
+  }
 
-  // Show success message if claim was successful
   if (isClaimSuccess) {
     return (
       <div className="w-full max-w-md mx-auto text-center">
@@ -158,16 +159,37 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
           <p className="text-green-400 mb-4">
             ✅ {currentNFT.name} claimed successfully!
           </p>
-          <p className="text-gray-400 text-sm">
+          <div className="mb-6">
+            <video
+              className="w-full rounded-lg border-2 border-purple-500/50"
+              controls
+              autoPlay
+              muted
+              playsInline
+              onError={(e) => {
+                setError("❌ Failed to load video");
+                console.error("Video error:", e);
+              }}
+            >
+              <source src={NFT_VIDEOS[nftType]} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+          <p className="text-gray-400 text-sm mb-4">
             You can now stake your NFT to earn {currentNFT.rewardRate} PLS per
-            second
+            second.
           </p>
+          <Link
+            href="/stake"
+            className="btn neon-purple-outline inline-block"
+          >
+            Go to Staking →
+          </Link>
         </div>
       </div>
     );
   }
 
-  // Show if user already owns the NFT
   if (alreadyOwnsNFT) {
     return (
       <div className="w-full max-w-md mx-auto text-center">
@@ -180,26 +202,21 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
     );
   }
 
-  // Show balance info
-  const sigmaBalanceFormatted = sigmaBalance
-    ? parseFloat(sigmaBalance.toString()) / 1e18
-    : 0;
-
   return (
     <div className="w-full max-w-md mx-auto text-center space-y-4">
       {/* NFT Info Card */}
       <div className="card-neon">
-        <h3 className="text-xl font-semibold mb-4">{currentNFT.name}</h3>
+        <h3 className="neon-heading text-xl font-semibold mb-4">{currentNFT.name}</h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-400">Price:</span>
-            <span className="font-semibold">
+            <span className="text-white font-semibold">
               {parseInt(currentNFT.price).toLocaleString()} Σ369
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-400">Reward Rate:</span>
-            <span className="font-semibold">
+            <span className="text-white font-semibold">
               {currentNFT.rewardRate} PLS/sec
             </span>
           </div>
@@ -231,7 +248,7 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
       ) : needsApproval && !isApproveSuccess ? (
         <div>
           <div className="mb-4">
-            <p className="text-sm text-gray-400 mb-2">
+            <p className="text-sm text-white mb-2">
               First, approve spending{" "}
               {parseInt(currentNFT.price).toLocaleString()} Σ369 tokens
             </p>
@@ -246,9 +263,9 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
         </div>
       ) : (
         <button
-          onClick={handleClaim}
+          onClick={openModal}
           disabled={isClaimLoading}
-          className="btn neon-purple w-full"
+          className="btn-neon inline-block"
         >
           {isClaimLoading ? "Claiming…" : `Claim ${currentNFT.name}`}
         </button>
@@ -257,6 +274,48 @@ export default function ClaimPanel({ nftType = "MEMBER" }: ClaimPanelProps) {
       {error && (
         <div className="card-neon border-red-500/50">
           <p className="text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-lg p-6 max-w-lg w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold text-white">
+                Preview {currentNFT.name}
+              </h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="mb-6">
+              <video
+                className="w-full rounded-lg border-2 border-purple-500/50"
+                controls
+                autoPlay
+                muted
+                playsInline
+                onError={(e) => {
+                  setError("❌ Failed to load video");
+                  console.error("Video error:", e);
+                }}
+              >
+                <source src={NFT_VIDEOS[nftType]} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+            <button
+              onClick={handleClaim}
+              disabled={isClaimLoading}
+              className="btn-neon w-full"
+            >
+              {isClaimLoading ? "Claiming…" : `Confirm Claim ${currentNFT.name}`}
+            </button>
+          </div>
         </div>
       )}
     </div>

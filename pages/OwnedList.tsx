@@ -110,7 +110,7 @@ export default function OwnedList() {
 
   return (
     <div className="w-full max-w-md mx-auto p-4 bg-gray-900 rounded space-y-4">
-      <h3 className="text-lg font-semibold">Your Club Member NFT(s):</h3>
+      <h3 className="neon-heading text-lg font-semibold">Your Club Member NFT(s):</h3>
       <ul className="space-y-6">
         {items.map(({ id, metadata, balance }) => {
           const name = metadata.name || `Sigma 369 Club Member #${id}`;

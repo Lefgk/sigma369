@@ -132,7 +132,7 @@ export default function Home() {
               <Link href="/claim" className="btn-neon inline-block">
                 Claim Your NFT
               </Link>
-              <Link href="/portfolio" className="btn neon-purple-outline inline-block">
+              <Link href="/portfolio" className="btn-neon inline-block">
                 View Portfolio
               </Link>
             </div>

@@ -50,13 +50,13 @@ export default function StakePage() {
 
             {/* How Staking Works */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="neon-heading text-2xl font-semibold mb-6 text-center">
                 How Staking Works
               </h2>
               <div className="grid md:grid-cols-4 gap-4 text-center">
                 <div className="p-4">
                   <div className="text-4xl mb-3">🎁</div>
-                  <h3 className="font-semibold mb-2">Own NFT</h3>
+                  <h3 className="text-gray-400 font-semibold mb-2">Own NFT</h3>
                   <p className="text-sm text-gray-400">
                     Have a Club Member NFT in your wallet
                   </p>
@@ -87,7 +87,7 @@ export default function StakePage() {
 
             {/* Main Staking Panel */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="neon-heading text-2xl font-semibold mb-6 text-center">
                 Your Staking Dashboard
               </h2>
               <StakingPanel />
@@ -95,7 +95,7 @@ export default function StakePage() {
 
             {/* Staking Benefits */}
             <div className="card-neon">
-              <h2 className="text-2xl font-semibold mb-6 text-center">
+              <h2 className="neon-heading text-2xl font-semibold mb-6 text-center">
                 Staking Benefits
               </h2>
               <div className="grid md:grid-cols-2 gap-6">

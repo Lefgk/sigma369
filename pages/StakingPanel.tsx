@@ -238,13 +238,13 @@ export default function StakingPanel() {
       {!hasNFT ? (
         <div className="card-neon text-center">
           <div className="text-4xl mb-4">🎁</div>
-          <h3 className="text-lg font-semibold mb-2">
+          <h3 className="text-white text-lg font-semibold mb-2">
             No {currentNFT.name} Found
           </h3>
           <p className="text-gray-400 mb-4">
             You need to own a {currentNFT.name} to stake
           </p>
-          <a href="/claim" className="btn neon-purple-outline">
+          <a href="/claim" className="btn-neon inline-block">
             Claim NFT First
           </a>
         </div>
