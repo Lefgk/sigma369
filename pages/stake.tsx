@@ -33,17 +33,17 @@ export default function StakePage() {
             <div className="grid md:grid-cols-3 gap-6">
               <div className="stat-card text-center">
                 <div className="text-3xl mb-2">⚡</div>
-                <div className="stat-value">Active</div>
+                <div className="text-white stat-value">Active</div>
                 <p className="text-gray-400 text-sm">Staking Status</p>
               </div>
               <div className="stat-card text-center">
                 <div className="text-3xl mb-2">💰</div>
-                <div className="stat-value">24/7</div>
+                <div className="text-white stat-value">24/7</div>
                 <p className="text-gray-400 text-sm">Earning Rewards</p>
               </div>
               <div className="stat-card text-center">
                 <div className="text-3xl mb-2">🔒</div>
-                <div className="stat-value">Secure</div>
+                <div className="text-white stat-value">Secure</div>
                 <p className="text-gray-400 text-sm">Smart Contract</p>
               </div>
             </div>
@@ -62,22 +62,22 @@ export default function StakePage() {
                   </p>
                 </div>
                 <div className="p-4">
-                  <div className="text-4xl mb-3">🔐</div>
-                  <h3 className="font-semibold mb-2">Stake</h3>
+                  <div className=" text-4xl mb-3">🔐</div>
+                  <h3 className="text-gray-400 font-semibold mb-2">Stake</h3>
                   <p className="text-sm text-gray-400">
                     Lock your NFT in the staking contract
                   </p>
                 </div>
                 <div className="p-4">
-                  <div className="text-4xl mb-3">💎</div>
-                  <h3 className="font-semibold mb-2">Earn</h3>
+                  <div className=" text-4xl mb-3">💎</div>
+                  <h3 className="text-gray-400 font-semibold mb-2">Earn</h3>
                   <p className="text-sm text-gray-400">
                     Accumulate PLS rewards over time
                   </p>
                 </div>
                 <div className="p-4">
                   <div className="text-4xl mb-3">💸</div>
-                  <h3 className="font-semibold mb-2">Claim</h3>
+                  <h3 className="text-gray-400 font-semibold mb-2">Claim</h3>
                   <p className="text-sm text-gray-400">
                     Withdraw your earned rewards anytime
                   </p>
