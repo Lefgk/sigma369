@@ -12,8 +12,8 @@ import Link from "next/link";
 
 // Video mapping for MEMBER and VIP NFTs
 const NFT_VIDEOS = {
-  MEMBER: "../components/club.mp4",
-  VIP: "../videos/vip.mp4",
+  MEMBER: "/videos/club.mp4",
+  VIP: "/videos/vip.mp4",
 } as const;
 
 interface ClaimPanelProps {
