@@ -9,7 +9,7 @@ import { parseUnits } from "viem";
 import { CONTRACTS, NFT_TYPES } from "../wagmi.config";
 import { memberDropABI, sigmaTokenABI } from "../abis";
 import Link from "next/link";
-
+import { Address } from "viem";
 // Video mapping for MEMBER and VIP NFTs
 const NFT_VIDEOS = {
   MEMBER: "/videos/club.mp4",
@@ -25,6 +25,7 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [price, setPrice] = useState<number>(0);
+  const [claimSuccess, setClaimSuccess] = useState(false);
 
   const currentNFT = NFT_TYPES[nftType] || NFT_TYPES.MEMBER;
 
@@ -65,12 +66,14 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
     query: { enabled: !!address, retry: 3, retryDelay: 1000 },
   });
 
-  // Transaction hooks
+  // Transaction hooks for approval
   const { writeContract: writeApprove, data: approveHash } = useWriteContract();
-  const { writeContract: writeClaim, data: claimHash } = useWriteContract();
   const { isLoading: isApproveLoading, isSuccess: isApproveSuccess } =
     useWaitForTransactionReceipt({ hash: approveHash });
-  const { isLoading: isClaimLoading, isSuccess: isClaimSuccess } =
+
+  // Transaction hooks for claim
+  const { writeContract: writeClaim, data: claimHash } = useWriteContract();
+  const { isLoading: isClaimLoading, isSuccess: isClaimTransactionSuccess } =
     useWaitForTransactionReceipt({ hash: claimHash });
 
   // Refetch allowance after approval
@@ -78,9 +81,20 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
     if (isApproveSuccess) refetchAllowance();
   }, [isApproveSuccess, refetchAllowance]);
 
-  const needsApproval = allowance ? allowance < price : true;
-  const hasEnoughTokens = sigmaBalance ? sigmaBalance >= price : false;
+  // Handle claim success
+  useEffect(() => {
+    if (isClaimTransactionSuccess) {
+      setClaimSuccess(true);
+      setIsModalOpen(false);
+    }
+  }, [isClaimTransactionSuccess]);
+
+  const needsApproval = allowance ? allowance < BigInt(currentNFT.price) : true;
+  const hasEnoughTokens = sigmaBalance
+    ? sigmaBalance >= BigInt(currentNFT.price)
+    : false;
   const alreadyOwnsNFT = nftBalance ? nftBalance > 0 : false;
+
   const sigmaBalanceFormatted = useMemo(() => {
     return sigmaBalance ? parseFloat(sigmaBalance.toString()) / 1e18 : 0;
   }, [sigmaBalance]);
@@ -90,7 +104,7 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
     if (!hasEnoughTokens)
       return setError(
         `❌ Insufficient Sigma 369 tokens. Need ${
-          currentNFT && currentNFT.price.toLocaleString()
+          currentNFT && (Number(currentNFT.price) / 1e18).toLocaleString()
         }`
       );
 
@@ -100,34 +114,50 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
         address: CONTRACTS.SIGMA_TOKEN,
         abi: sigmaTokenABI,
         functionName: "approve",
-        args: [currentNFT.contract, BigInt(price)],
+        args: [currentNFT.contract, BigInt(currentNFT.price)],
       });
     } catch (e: any) {
       setError(`❌ ${e.message || "Approval failed"}`);
     }
   };
 
-  const handleClaim = async () => {
-    if (!address) return setError("🔌 Connect your wallet first");
-    if (!hasEnoughTokens)
-      return setError(
-        `❌ Insufficient Sigma 369 tokens. Need ${
-          currentNFT && currentNFT.price.toLocaleString()
-        }`
-      );
-    if (alreadyOwnsNFT)
-      return setError(`❌ You already own a ${currentNFT.name}`);
-
+  const handleClaimWithWagmi = async () => {
     try {
+      if (!address) return setError("🔌 Connect your wallet first");
+      if (!hasEnoughTokens)
+        return setError(
+          `❌ Insufficient Sigma 369 tokens. Need ${
+            currentNFT && (Number(currentNFT.price) / 1e18).toLocaleString()
+          }`
+        );
+      if (alreadyOwnsNFT)
+        return setError(`❌ You already own a ${currentNFT.name}`);
+
       setError(null);
+
+      // Use wagmi's writeContract with the memberDropABI
       writeClaim({
         address: currentNFT.contract,
         abi: memberDropABI,
         functionName: "claim",
-        args: [BigInt(currentNFT.tokenId), BigInt(1)],
+        args: [
+          address, // _receiver
+          BigInt(currentNFT.tokenId), // _tokenId
+          BigInt(1), // _quantity
+          CONTRACTS.SIGMA_TOKEN, // _currency (using Sigma token address)
+          BigInt(currentNFT.price), // _pricePerToken
+          {
+            proof: [], // empty proof for public claims
+            quantityLimitPerWallet: BigInt(0), // 0 means no limit for this wallet
+            pricePerToken: BigInt(currentNFT.price),
+            currency: "0x0000000000000000000000000000000000000000",
+          }, // _allowlistProof
+          "0x", // _data (empty bytes)
+        ],
       });
-    } catch (e: any) {
-      const message = e.message || e.reason || "Unknown error";
+    } catch (error: any) {
+      console.error("Claim error:", error);
+      const message = error.message || error.reason || "Unknown error";
       if (
         message.toLowerCase().includes("already claimed") ||
         message.toLowerCase().includes("exceed limit")
@@ -162,7 +192,7 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
     );
   }
 
-  if (isClaimSuccess) {
+  if (claimSuccess) {
     return (
       <div className="w-full max-w-md mx-auto text-center">
         <div className="card-neon">
@@ -222,7 +252,7 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
           <div className="flex justify-between">
             <span className="text-gray-400">Price:</span>
             <span className="text-white font-semibold">
-              {parseInt(currentNFT && currentNFT.price).toLocaleString()} Σ369
+              {(Number(currentNFT.price) / 1e18).toLocaleString()} Σ369
             </span>
           </div>
           <div className="flex justify-between">
@@ -252,8 +282,8 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
             Insufficient Balance
           </h3>
           <p className="text-gray-400 text-sm">
-            You need {parseInt(currentNFT && currentNFT.price).toLocaleString()}{" "}
-            Sigma 369 tokens to claim this NFT
+            You need {(Number(currentNFT.price) / 1e18).toLocaleString()} Sigma
+            369 tokens to claim this NFT
           </p>
         </div>
       ) : needsApproval && !isApproveSuccess ? (
@@ -261,14 +291,14 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
           <div className="mb-4">
             <p className="text-sm text-white mb-2">
               First, approve spending{" "}
-              {parseInt(currentNFT && currentNFT.price).toLocaleString()} Σ369
-              tokens
+              {(Number(currentNFT.price) / 1e18).toLocaleString()} Σ369 tokens
             </p>
           </div>
           <button
             onClick={handleApprove}
             disabled={isApproveLoading}
             className="btn neon-purple-outline w-full"
+            style={{ color: "white" }}
           >
             {isApproveLoading ? "Approving…" : `Approve Σ369 Tokens`}
           </button>
@@ -321,7 +351,7 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
               </video>
             </div>
             <button
-              onClick={handleClaim}
+              onClick={handleClaimWithWagmi}
               disabled={isClaimLoading}
               className="btn-neon w-full"
             >
