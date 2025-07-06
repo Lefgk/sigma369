@@ -23,8 +23,7 @@ export const pulseChain = defineChain({
 });
 
 // Fallback project ID for development (get your own from https://cloud.walletconnect.com/)
-const projectId =
-  process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "your-project-id-here";
+const projectId = "8bcfb9e407220684c6af6186c16bde86";
 
 export const config = getDefaultConfig({
   appName: "Sigma 369 Club",

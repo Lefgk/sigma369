@@ -294,7 +294,7 @@ export default function StakingPanel() {
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className="space-y-3" style={{ color: "white" }}>
               {!isApproved && !isApprovalSuccess ? (
                 <button
                   onClick={handleApproval}
