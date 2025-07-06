@@ -24,9 +24,17 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
   const { address } = useAccount();
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [price, setPrice] = useState<number>(0);
 
-  const currentNFT = NFT_TYPES[nftType];
-  const price = parseUnits(currentNFT.price, 18);
+  const currentNFT = NFT_TYPES[nftType] || NFT_TYPES.MEMBER;
+
+  // Get price using useEffect
+  useEffect(() => {
+    if (currentNFT?.price) {
+      const calculatedPrice = Number(currentNFT.price) / 1e18;
+      setPrice(calculatedPrice);
+    }
+  }, [currentNFT?.price]);
 
   // Contract reads
   const {
@@ -81,7 +89,9 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
     if (!address) return setError("🔌 Connect your wallet first");
     if (!hasEnoughTokens)
       return setError(
-        `❌ Insufficient Sigma 369 tokens. Need ${currentNFT.price.toLocaleString()}`
+        `❌ Insufficient Sigma 369 tokens. Need ${
+          currentNFT && currentNFT.price.toLocaleString()
+        }`
       );
 
     try {
@@ -90,7 +100,7 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
         address: CONTRACTS.SIGMA_TOKEN,
         abi: sigmaTokenABI,
         functionName: "approve",
-        args: [currentNFT.contract, price],
+        args: [currentNFT.contract, BigInt(price)],
       });
     } catch (e: any) {
       setError(`❌ ${e.message || "Approval failed"}`);
@@ -101,7 +111,9 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
     if (!address) return setError("🔌 Connect your wallet first");
     if (!hasEnoughTokens)
       return setError(
-        `❌ Insufficient Sigma 369 tokens. Need ${currentNFT.price.toLocaleString()}`
+        `❌ Insufficient Sigma 369 tokens. Need ${
+          currentNFT && currentNFT.price.toLocaleString()
+        }`
       );
     if (alreadyOwnsNFT)
       return setError(`❌ You already own a ${currentNFT.name}`);
@@ -179,10 +191,7 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
             You can now stake your NFT to earn {currentNFT.rewardRate} PLS per
             second.
           </p>
-          <Link
-            href="/stake"
-            className="btn neon-purple-outline inline-block"
-          >
+          <Link href="/stake" className="btn neon-purple-outline inline-block">
             Go to Staking →
           </Link>
         </div>
@@ -206,12 +215,14 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
     <div className="w-full max-w-md mx-auto text-center space-y-4">
       {/* NFT Info Card */}
       <div className="card-neon">
-        <h3 className="neon-heading text-xl font-semibold mb-4">{currentNFT.name}</h3>
+        <h3 className="neon-heading text-xl font-semibold mb-4">
+          {currentNFT.name}
+        </h3>
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-400">Price:</span>
             <span className="text-white font-semibold">
-              {parseInt(currentNFT.price).toLocaleString()} Σ369
+              {parseInt(currentNFT && currentNFT.price).toLocaleString()} Σ369
             </span>
           </div>
           <div className="flex justify-between">
@@ -241,8 +252,8 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
             Insufficient Balance
           </h3>
           <p className="text-gray-400 text-sm">
-            You need {parseInt(currentNFT.price).toLocaleString()} Sigma 369
-            tokens to claim this NFT
+            You need {parseInt(currentNFT && currentNFT.price).toLocaleString()}{" "}
+            Sigma 369 tokens to claim this NFT
           </p>
         </div>
       ) : needsApproval && !isApproveSuccess ? (
@@ -250,7 +261,8 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
           <div className="mb-4">
             <p className="text-sm text-white mb-2">
               First, approve spending{" "}
-              {parseInt(currentNFT.price).toLocaleString()} Σ369 tokens
+              {parseInt(currentNFT && currentNFT.price).toLocaleString()} Σ369
+              tokens
             </p>
           </div>
           <button
@@ -313,7 +325,9 @@ export default function ClaimPanel({ nftType }: ClaimPanelProps) {
               disabled={isClaimLoading}
               className="btn-neon w-full"
             >
-              {isClaimLoading ? "Claiming…" : `Confirm Claim ${currentNFT.name}`}
+              {isClaimLoading
+                ? "Claiming…"
+                : `Confirm Claim ${currentNFT.name}`}
             </button>
           </div>
         </div>
