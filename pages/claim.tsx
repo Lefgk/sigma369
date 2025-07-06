@@ -172,15 +172,14 @@ export default function ClaimPage() {
                     muted
                     playsInline
                     poster={`/images/fallback-${selectedNFT.toLowerCase()}.jpg`}
-                    onError={(e) => console.error(`${selectedNFT} modal video error:`, e)}
+                    onError={(e) =>
+                      console.error(`${selectedNFT} modal video error:`, e)
+                    }
                   >
                     <source src={NFT_VIDEOS[selectedNFT]} type="video/mp4" />
                   </video>
                   <div className="mt-6 text-center">
-                    <button
-                      onClick={confirmClaim}
-                      className="btn-neon"
-                    >
+                    <button onClick={confirmClaim} className="btn-neon">
                       Confirm Claim
                     </button>
                   </div>
@@ -197,7 +196,9 @@ export default function ClaimPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-700">
-                      <th className="neon-heading text-left py-3 px-4">Feature</th>
+                      <th className="neon-heading text-left py-3 px-4">
+                        Feature
+                      </th>
                       <th className="text-center py-3 px-4 text-purple-400">
                         Member
                       </th>
@@ -209,32 +210,50 @@ export default function ClaimPage() {
                   <tbody className="space-y-2">
                     <tr className="border-b border-gray-800">
                       <td className="py-3 px-4 text-gray-300">Entry Price</td>
-                      <td className="text-white py-3 px-4 text-center">369,000 Σ369</td>
-                      <td className="text-white py-3 px-4 text-center">3,690,000 Σ369</td>
+                      <td className="text-white py-3 px-4 text-center">
+                        369,000 Σ369
+                      </td>
+                      <td className="text-white py-3 px-4 text-center">
+                        3,690,000 Σ369
+                      </td>
                     </tr>
                     <tr className="border-b border-gray-800">
                       <td className="py-3 px-4 text-gray-300">
                         Staking Rewards
                       </td>
-                      <td className="text-white py-3 px-4 text-center">0.369 PLS/sec</td>
-                      <td className="text-white py-3 px-4 text-center">0.963 PLS/sec</td>
+                      <td className="text-white py-3 px-4 text-center">
+                        0.369 PLS/sec
+                      </td>
+                      <td className="text-white py-3 px-4 text-center">
+                        0.963 PLS/sec
+                      </td>
                     </tr>
                     <tr className="border-b border-gray-800">
                       <td className="py-3 px-4 text-gray-300">
                         Daily Earning Potential
                       </td>
-                      <td className="text-white py-3 px-4 text-center">~31,881 PLS</td>
-                      <td className="text-white py-3 px-4 text-center">~83,203 PLS</td>
+                      <td className="text-white py-3 px-4 text-center">
+                        ~31,881 PLS
+                      </td>
+                      <td className="text-white py-3 px-4 text-center">
+                        ~83,203 PLS
+                      </td>
                     </tr>
                     <tr className="border-b border-gray-800">
                       <td className="py-3 px-4 text-gray-300">Club Status</td>
-                      <td className="text-white py-3 px-4 text-center">Member</td>
+                      <td className="text-white py-3 px-4 text-center">
+                        Member
+                      </td>
                       <td className="text-white py-3 px-4 text-center">VIP</td>
                     </tr>
                     <tr>
                       <td className="py-3 px-4 text-gray-300">NFT Rarity</td>
-                      <td className="text-white py-3 px-4 text-center">Standard</td>
-                      <td className="text-white py-3 px-4 text-center">Premium</td>
+                      <td className="text-white py-3 px-4 text-center">
+                        Standard
+                      </td>
+                      <td className="text-white py-3 px-4 text-center">
+                        Premium
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -243,7 +262,10 @@ export default function ClaimPage() {
 
             {/* Claim Panel */}
             <div className="max-w-lg mx-auto">
-              <ClaimPanel nftType={selectedNFT} onClaimClick={handleClaimClick} />
+              <ClaimPanel
+                nftType={selectedNFT}
+                //  onClaimClick={handleClaimClick}
+              />
             </div>
 
             {/* How to Get Tokens */}
