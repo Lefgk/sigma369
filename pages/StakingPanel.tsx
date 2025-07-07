@@ -351,7 +351,8 @@ export default function StakingPanel() {
     const currentNFT = NFT_TYPES[nftType];
     const borderColor = nftType === "MEMBER" ? "#8b5cf6" : "#ec4899";
     const icon = nftType === "MEMBER" ? "🏅" : "👑";
-    const hasNFT = data.isStaked;
+    // const hasNFT = data.isStaked;
+    const hasNFT = Number(data.balance) > 0 || data.isStaked;
 
     return (
       <div
