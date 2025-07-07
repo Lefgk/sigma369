@@ -12,7 +12,7 @@ export default function Navigation() {
     { href: "/", label: "Home", icon: "🏠" },
     { href: "/claim", label: "Claim NFT", icon: "🎁" },
     { href: "/stake", label: "Staking", icon: "⚡" },
-    { href: "/portfolio", label: "Portfolio", icon: "💼" },
+    // { href: "/portfolio", label: "Portfolio", icon: "💼" },
   ];
 
   return (
