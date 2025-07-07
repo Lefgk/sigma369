@@ -128,11 +128,39 @@ export default function StakingPanel() {
     args: [BigInt(NFT_TYPES.VIP?.tokenId || 0), address],
   });
 
+  // Additional contract info
+  const { data: memberRewardTokenBalance } = useReadContract({
+    address: NFT_TYPES.MEMBER?.stakingContract,
+    abi: stakingABI,
+    functionName: "getRewardTokenBalance",
+  });
+
+  const { data: vipRewardTokenBalance } = useReadContract({
+    address: NFT_TYPES.VIP?.stakingContract,
+    abi: stakingABI,
+    functionName: "getRewardTokenBalance",
+  });
+
+  const { data: memberRewardsPerUnitTime } = useReadContract({
+    address: NFT_TYPES.MEMBER?.stakingContract,
+    abi: stakingABI,
+    functionName: "getRewardsPerUnitTime",
+    args: [BigInt(NFT_TYPES.MEMBER?.tokenId || 0)],
+  });
+
+  const { data: vipRewardsPerUnitTime } = useReadContract({
+    address: NFT_TYPES.VIP?.stakingContract,
+    abi: stakingABI,
+    functionName: "getRewardsPerUnitTime",
+    args: [BigInt(NFT_TYPES.VIP?.tokenId || 0)],
+  });
+
   // Write contracts
   const { writeContract: writeApproval, data: approvalHash } =
     useWriteContract();
   const { writeContract: writeStake, data: stakeHash } = useWriteContract();
   const { writeContract: writeUnstake, data: unstakeHash } = useWriteContract();
+  const { writeContract: writeClaim, data: claimHash } = useWriteContract();
 
   // Transaction states
   const { isLoading: isApprovalLoading, isSuccess: isApprovalSuccess } =
@@ -141,6 +169,8 @@ export default function StakingPanel() {
     useWaitForTransactionReceipt({ hash: stakeHash });
   const { isLoading: isUnstakeLoading, isSuccess: isUnstakeSuccess } =
     useWaitForTransactionReceipt({ hash: unstakeHash });
+  const { isLoading: isClaimLoading, isSuccess: isClaimSuccess } =
+    useWaitForTransactionReceipt({ hash: claimHash });
 
   // Process contract data into state
   useEffect(() => {
@@ -154,7 +184,6 @@ export default function StakingPanel() {
       const stakeData = stakeInfoForToken as any;
 
       const amountStaked = stakerData ? Number(stakerData[1]) : 0;
-      console.log(stakerData, amountStaked, amountStaked > 0);
       const timeOfLastUpdate = stakerData ? Number(stakerData[2]) : 0;
       const unclaimedRewards = stakerData ? stakerData[3] : BigInt(0);
       const liveRewards = stakeData ? stakeData[1] : BigInt(0);
@@ -210,6 +239,10 @@ export default function StakingPanel() {
     vipStakerInfo,
     memberStakeInfoForToken,
     vipStakeInfoForToken,
+    memberRewardTokenBalance,
+    vipRewardTokenBalance,
+    memberRewardsPerUnitTime,
+    vipRewardsPerUnitTime,
   ]);
 
   // Handler functions
@@ -273,6 +306,26 @@ export default function StakingPanel() {
     }
   };
 
+  const handleClaim = async (nftType: "MEMBER" | "VIP") => {
+    if (!address) return;
+    const currentNFT = NFT_TYPES[nftType];
+    if (!currentNFT) return;
+
+    try {
+      setError(null);
+      console.log("Claiming rewards...", nftType);
+      writeClaim({
+        address: currentNFT.stakingContract,
+        abi: stakingABI,
+        functionName: "claimRewards",
+        args: [BigInt(currentNFT.tokenId)],
+      });
+    } catch (error: any) {
+      console.error("Claiming error:", error);
+      setError(`❌ ${error.message || "Claiming failed"}`);
+    }
+  };
+
   // Loading state
   if (isLoading) {
     return (
@@ -298,7 +351,6 @@ export default function StakingPanel() {
     const currentNFT = NFT_TYPES[nftType];
     const borderColor = nftType === "MEMBER" ? "#8b5cf6" : "#ec4899";
     const icon = nftType === "MEMBER" ? "🏅" : "👑";
-    console.log(data);
     const hasNFT = data.isStaked;
 
     return (
@@ -311,19 +363,28 @@ export default function StakingPanel() {
         }}
       >
         <h3
-          style={{ color: "white", textAlign: "center", marginBottom: "20px" }}
+          style={{
+            color: "white",
+            textAlign: "center",
+            marginBottom: "20px",
+            fontSize: "22px",
+          }}
         >
-          <span style={{ fontSize: "24px", marginRight: "8px" }}>{icon}</span>
+          <span style={{ fontSize: "32px", marginRight: "8px" }}>{icon}</span>
           {currentNFT?.name} Staking
         </h3>
 
         {!hasNFT ? (
           <div style={{ textAlign: "center" }}>
             <div style={{ fontSize: "48px", marginBottom: "16px" }}>🎁</div>
-            <h4 style={{ color: "white", marginBottom: "8px" }}>
+            <h4
+              style={{ color: "white", marginBottom: "8px", fontSize: "18px" }}
+            >
               No {currentNFT?.name} Found
             </h4>
-            <p style={{ color: "#888", marginBottom: "16px" }}>
+            <p
+              style={{ color: "#888", marginBottom: "16px", fontSize: "14px" }}
+            >
               You need to own a {currentNFT?.name} to stake
             </p>
           </div>
@@ -430,7 +491,7 @@ export default function StakingPanel() {
               }}
             >
               <div
-                style={{ fontSize: "10px", color: "#888", marginBottom: "4px" }}
+                style={{ fontSize: "12px", color: "#888", marginBottom: "4px" }}
               >
                 Earning Rate
               </div>
@@ -438,13 +499,13 @@ export default function StakingPanel() {
                 style={{
                   color: "#10b981",
                   fontWeight: "bold",
-                  fontSize: "14px",
+                  fontSize: "16px",
                   marginBottom: "4px",
                 }}
               >
                 {currentNFT?.rewardRate} PLS per second
               </div>
-              <div style={{ fontSize: "10px", color: "#888" }}>
+              <div style={{ fontSize: "12px", color: "#888" }}>
                 ≈{" "}
                 {(
                   parseFloat(currentNFT?.rewardRate || "0") * 86400
@@ -473,7 +534,7 @@ export default function StakingPanel() {
                         border: "none",
                         borderRadius: "8px",
                         fontWeight: "bold",
-                        fontSize: "12px",
+                        fontSize: "14px",
                         cursor: isApprovalLoading ? "not-allowed" : "pointer",
                         opacity: isApprovalLoading ? 0.7 : 1,
                       }}
@@ -494,7 +555,7 @@ export default function StakingPanel() {
                         border: "none",
                         borderRadius: "8px",
                         fontWeight: "bold",
-                        fontSize: "12px",
+                        fontSize: "14px",
                         cursor: isStakeLoading ? "not-allowed" : "pointer",
                         opacity: isStakeLoading ? 0.7 : 1,
                       }}
@@ -504,24 +565,62 @@ export default function StakingPanel() {
                   )}
                 </>
               ) : (
-                <button
-                  onClick={() => handleUnstake(nftType)}
-                  disabled={isUnstakeLoading}
-                  style={{
-                    width: "100%",
-                    padding: "10px",
-                    backgroundColor: "transparent",
-                    color: "#ef4444",
-                    border: "1px solid #ef4444",
-                    borderRadius: "8px",
-                    fontWeight: "bold",
-                    fontSize: "12px",
-                    cursor: isUnstakeLoading ? "not-allowed" : "pointer",
-                    opacity: isUnstakeLoading ? 0.7 : 1,
-                  }}
-                >
-                  {isUnstakeLoading ? "Unstaking..." : "🔓 Unstake"}
-                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => handleClaim(nftType)}
+                    disabled={
+                      isClaimLoading || data.totalClaimableRewards === BigInt(0)
+                    }
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      backgroundColor:
+                        isClaimLoading ||
+                        data.totalClaimableRewards === BigInt(0)
+                          ? "#666"
+                          : borderColor,
+                      color: "white",
+                      border: "none",
+                      borderRadius: "8px",
+                      fontWeight: "bold",
+                      fontSize: "13px",
+                      cursor:
+                        isClaimLoading ||
+                        data.totalClaimableRewards === BigInt(0)
+                          ? "not-allowed"
+                          : "pointer",
+                      opacity:
+                        isClaimLoading ||
+                        data.totalClaimableRewards === BigInt(0)
+                          ? 0.7
+                          : 1,
+                    }}
+                  >
+                    {isClaimLoading
+                      ? "Claiming..."
+                      : `💰 Claim ${parseFloat(
+                          formatUnits(data.totalClaimableRewards, 18)
+                        ).toFixed(2)} PLS`}
+                  </button>
+                  <button
+                    onClick={() => handleUnstake(nftType)}
+                    disabled={isUnstakeLoading}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      backgroundColor: "transparent",
+                      color: "#ef4444",
+                      border: "1px solid #ef4444",
+                      borderRadius: "8px",
+                      fontWeight: "bold",
+                      fontSize: "13px",
+                      cursor: isUnstakeLoading ? "not-allowed" : "pointer",
+                      opacity: isUnstakeLoading ? 0.7 : 1,
+                    }}
+                  >
+                    {isUnstakeLoading ? "Unstaking..." : "🔓 Unstake"}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -532,6 +631,102 @@ export default function StakingPanel() {
 
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px" }}>
+      <h2
+        style={{
+          color: "white",
+          textAlign: "center",
+          marginBottom: "24px",
+          fontSize: "32px",
+          fontWeight: "bold",
+        }}
+      >
+        Your Staking Dashboard
+      </h2>
+
+      {/* Contract Stats */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "16px",
+          marginBottom: "24px",
+        }}
+      >
+        <div
+          style={{
+            backgroundColor: "#1a1a1a",
+            padding: "16px",
+            borderRadius: "8px",
+            border: "1px solid #8b5cf6",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "20px", marginBottom: "8px" }}>🏅</div>
+          <div
+            style={{
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "16px",
+              marginBottom: "4px",
+            }}
+          >
+            Member Pool Balance
+          </div>
+          <div style={{ color: "#8b5cf6", fontSize: "14px" }}>
+            {memberRewardTokenBalance
+              ? parseFloat(
+                  formatUnits(memberRewardTokenBalance, 18)
+                ).toLocaleString()
+              : "0"}{" "}
+            PLS
+          </div>
+          <div style={{ color: "#888", fontSize: "12px", marginTop: "4px" }}>
+            Rate:{" "}
+            {memberRewardsPerUnitTime
+              ? formatUnits(memberRewardsPerUnitTime, 18)
+              : "0"}{" "}
+            PLS/sec
+          </div>
+        </div>
+
+        <div
+          style={{
+            backgroundColor: "#1a1a1a",
+            padding: "16px",
+            borderRadius: "8px",
+            border: "1px solid #ec4899",
+            textAlign: "center",
+          }}
+        >
+          <div style={{ fontSize: "20px", marginBottom: "8px" }}>👑</div>
+          <div
+            style={{
+              color: "white",
+              fontWeight: "bold",
+              fontSize: "16px",
+              marginBottom: "4px",
+            }}
+          >
+            VIP Pool Balance
+          </div>
+          <div style={{ color: "#ec4899", fontSize: "14px" }}>
+            {vipRewardTokenBalance
+              ? parseFloat(
+                  formatUnits(vipRewardTokenBalance, 18)
+                ).toLocaleString()
+              : "0"}{" "}
+            PLS
+          </div>
+          <div style={{ color: "#888", fontSize: "12px", marginTop: "4px" }}>
+            Rate:{" "}
+            {vipRewardsPerUnitTime
+              ? formatUnits(vipRewardsPerUnitTime, 18)
+              : "0"}{" "}
+            PLS/sec
+          </div>
+        </div>
+      </div>
+
       {/* Both NFT Cards Side by Side */}
       <div
         style={{
@@ -561,6 +756,23 @@ export default function StakingPanel() {
         >
           <p style={{ color: "#10b981", margin: 0 }}>
             ✅ NFT staked successfully! You're now earning rewards.
+          </p>
+        </div>
+      )}
+
+      {isClaimSuccess && (
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "12px",
+            backgroundColor: "#064e3b",
+            border: "1px solid #059669",
+            borderRadius: "8px",
+            textAlign: "center",
+          }}
+        >
+          <p style={{ color: "#10b981", margin: 0 }}>
+            ✅ Rewards claimed successfully!
           </p>
         </div>
       )}
