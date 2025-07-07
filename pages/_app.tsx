@@ -7,8 +7,6 @@ import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider, darkTheme } from "@rainbow-me/rainbowkit";
 import { config } from "../wagmi.config";
 import Layout from "./Layout";
-import { createThirdwebClient } from "thirdweb";
-import { ThirdwebProvider } from "thirdweb/react";
 
 const queryClient = new QueryClient();
 // Create Thirdweb client
