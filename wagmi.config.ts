@@ -56,7 +56,7 @@ export const NFT_TYPES = {
     contract: CONTRACTS.MEMBER_DROP,
     stakingContract: CONTRACTS.MEMBER_STAKE,
     price: "369000000000000000000000", // 369,000 Sigma 369 tokens
-    rewardRate: "0.369", // 0.369 PLS per second
+    rewardRate: "0.0963", // 0.369 PLS per second
     name: "Club Member NFT",
     tokenId: 0,
   },

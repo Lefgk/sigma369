@@ -93,7 +93,7 @@ export default function ClaimPage() {
                     <p className="text-purple-400 font-semibold">
                       369,000 Σ369 tokens
                     </p>
-                    <p className="text-gray-400">Earn 0.369 PLS per second</p>
+                    <p className="text-gray-400">Earn 0.0963 PLS per second</p>
                     <p className="text-gray-400">Basic membership benefits</p>
                   </div>
                   {selectedNFT === "MEMBER" && (
