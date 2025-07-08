@@ -222,7 +222,7 @@ export default function ClaimPage() {
                         Staking Rewards
                       </td>
                       <td className="text-white py-3 px-4 text-center">
-                        0.369 PLS/sec
+                        0.0963 PLS/sec
                       </td>
                       <td className="text-white py-3 px-4 text-center">
                         0.963 PLS/sec
@@ -233,7 +233,7 @@ export default function ClaimPage() {
                         Daily Earning Potential
                       </td>
                       <td className="text-white py-3 px-4 text-center">
-                        ~31,881 PLS
+                        ~8,320 PLS
                       </td>
                       <td className="text-white py-3 px-4 text-center">
                         ~83,203 PLS
